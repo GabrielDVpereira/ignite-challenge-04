@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-
 import Header from "../../components/Header";
 import api from "../../services/api";
 import Food from "../../components/Food";
@@ -7,21 +6,30 @@ import ModalAddFood from "../../components/ModalAddFood";
 import ModalEditFood from "../../components/ModalEditFood";
 import { FoodsContainer } from "./styles";
 
+interface TFood {
+  available: boolean;
+  description: String;
+  id: number;
+  image: string;
+  name: string;
+  price: string;
+}
+
 export default function Dashboard() {
-  const [foods, setFoods] = useState([]);
-  const [editingFood, setEditingFood] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editModalOpen, setEditingModalOPen] = useState(false);
+  const [foods, setFoods] = useState<TFood[]>([]);
+  const [editingFood, setEditingFood] = useState<TFood>({} as TFood);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [editModalOpen, setEditingModalOPen] = useState<boolean>(false);
 
   useEffect(() => {
-    api.get("/foods").then(({ data }) => {
+    api.get<TFood[]>("/foods").then(({ data }) => {
       setFoods(data);
     });
   }, []);
 
-  const handleAddFood = async (food) => {
+  const handleAddFood = async (food: TFood) => {
     try {
-      const response = await api.post("/foods", {
+      const response = await api.post<TFood>("/foods", {
         ...food,
         available: true,
       });
@@ -32,9 +40,9 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpdateFood = async (food) => {
+  const handleUpdateFood = async (food: TFood) => {
     try {
-      const foodUpdated = await api.put(`/foods/${editingFood.id}`, {
+      const foodUpdated = await api.put<TFood>(`/foods/${editingFood.id}`, {
         ...editingFood,
         ...food,
       });
@@ -49,7 +57,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteFood = async (id) => {
+  const handleDeleteFood = async (id: number) => {
     await api.delete(`/foods/${id}`);
 
     const foodsFiltered = foods.filter((food) => food.id !== id);
@@ -59,7 +67,7 @@ export default function Dashboard() {
   const toggleModal = () => setModalOpen(!modalOpen);
   const toggleEditModal = () => setEditingModalOPen(!editModalOpen);
 
-  const handleEditFood = (food) => {
+  const handleEditFood = (food: TFood) => {
     setEditingFood(food);
     setEditingModalOPen(true);
   };
